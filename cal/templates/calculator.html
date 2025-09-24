@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Django Calculator</title>
+    <title>Calculator</title>
     <style>
         * {
             margin: 0;
@@ -62,7 +62,7 @@
         }
 
         .calculator {
-            background: #1a1a2e;
+            background: #000000;
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -71,8 +71,8 @@
         }
 
         .display {
-            background: #0f0f1e;
-            color: #00ff88;
+            background: #ffffff;
+            color: #000000;
             font-size: 2.5em;
             padding: 15px;
             text-align: right;
@@ -203,7 +203,7 @@
         .clear-history {
             margin-top: 10px;
             padding: 10px 20px;
-            background: linear-gradient(145deg, #ff6b6b, #ee5a24);
+            background: linear-gradient(145deg, #b0b0b0, #4d4d4d);
             color: white;
             border: none;
             border-radius: 5px;
@@ -236,7 +236,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Django Calculator</h1>
+        <h1>Try Me!</h1>
         
         <div class="calculator">
             <div class="display" id="display">0</div>
@@ -280,15 +280,14 @@
         let shouldResetDisplay = false;
         let history = [];
 
-        // Load history from memory
+        
         function loadHistory() {
-            // In a real Django app, this would load from the backend
+            
             updateHistoryDisplay();
         }
 
         function updateDisplay() {
             display.textContent = currentInput;
-            // Add animation effect
             display.style.animation = 'none';
             setTimeout(() => {
                 display.style.animation = 'glow 2s ease-in-out infinite';
