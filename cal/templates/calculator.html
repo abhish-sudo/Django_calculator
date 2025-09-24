@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: gradientShift 10s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .calculator {
+            background: #1a1a2e;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 350px;
+            margin: 0 auto;
+        }
+
+        .display {
+            background: #0f0f1e;
+            color: #00ff88;
+            font-size: 2.5em;
+            padding: 15px;
+            text-align: right;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            min-height: 70px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3), 0 0 10px rgba(0, 255, 136, 0.1); }
+            50% { box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 255, 136, 0.2); }
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 25px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: linear-gradient(145deg, #2a2a3e, #16161e);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        button:hover::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.2);
+        }
+
+        .operator {
+            background: linear-gradient(145deg, #764ba2, #667eea);
+            font-weight: bold;
+        }
+
+        .equals {
+            background: linear-gradient(145deg, #00ff88, #00cc6e);
+            grid-column: span 2;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+
+        .clear {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a24);
+            grid-column: span 2;
+            font-weight: bold;
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+
+        .history {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .history h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .history-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            color: #333;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .clear-history {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: linear-gradient(145deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .clear-history:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                max-width: 100%;
+            }
+            
+            button {
+                padding: 20px;
+                font-size: 1.1em;
+            }
+            
+            .display {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Django Calculator</h1>
+        
+        <div class="calculator">
+            <div class="display" id="display">0</div>
+            
+            <div class="buttons">
+                <button class="clear" onclick="clearDisplay()">C</button>
+                <button class="operator" onclick="appendToDisplay('/')">/</button>
+                <button class="operator" onclick="appendToDisplay('*')">×</button>
+                
+                <button onclick="appendToDisplay('7')">7</button>
+                <button onclick="appendToDisplay('8')">8</button>
+                <button onclick="appendToDisplay('9')">9</button>
+                <button class="operator" onclick="appendToDisplay('-')">-</button>
+                
+                <button onclick="appendToDisplay('4')">4</button>
+                <button onclick="appendToDisplay('5')">5</button>
+                <button onclick="appendToDisplay('6')">6</button>
+                <button class="operator" onclick="appendToDisplay('+')">+</button>
+                
+                <button onclick="appendToDisplay('1')">1</button>
+                <button onclick="appendToDisplay('2')">2</button>
+                <button onclick="appendToDisplay('3')">3</button>
+                <button class="operator" onclick="appendToDisplay('.')">.</button>
+                
+                <button class="zero" onclick="appendToDisplay('0')">0</button>
+                <button class="equals" onclick="calculate()">=</button>
+            </div>
+        </div>
+        
+        <div class="history">
+            <h2>Calculation History</h2>
+            <div class="history-list" id="history-list"></div>
+            <button class="clear-history" onclick="clearHistory()">Clear History</button>
+        </div>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let historyList = document.getElementById('history-list');
+        let currentInput = '0';
+        let shouldResetDisplay = false;
+        let history = [];
+
+        // Load history from memory
+        function loadHistory() {
+            // In a real Django app, this would load from the backend
+            updateHistoryDisplay();
+        }
+
+        function updateDisplay() {
+            display.textContent = currentInput;
+            // Add animation effect
+            display.style.animation = 'none';
+            setTimeout(() => {
+                display.style.animation = 'glow 2s ease-in-out infinite';
+            }, 10);
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            shouldResetDisplay = false;
+            updateDisplay();
+        }
+
+        function appendToDisplay(value) {
+            if (shouldResetDisplay && !isNaN(value)) {
+                currentInput = '';
+                shouldResetDisplay = false;
+            }
+            
+            if (currentInput === '0' && value !== '.') {
+                currentInput = '';
+            }
+            
+            // Prevent multiple decimal points
+            if (value === '.' && currentInput.includes('.')) {
+                return;
+            }
+            
+            // Prevent multiple operators in a row
+            const lastChar = currentInput[currentInput.length - 1];
+            if (['+', '-', '*', '/'].includes(value) && ['+', '-', '*', '/'].includes(lastChar)) {
+                currentInput = currentInput.slice(0, -1);
+            }
+            
+            currentInput += value;
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                // Sanitize input
+                let expression = currentInput.replace(/×/g, '*').replace(/÷/g, '/');
+                
+                // Basic validation
+                if (expression === '' || expression === '0') {
+                    return;
+                }
+                
+                // Calculate result
+                let result = Function('"use strict"; return (' + expression + ')')();
+                
+                // Round to avoid floating point issues
+                result = Math.round(result * 100000000) / 100000000;
+                
+                // Add to history
+                addToHistory(currentInput + ' = ' + result);
+                
+                // Update display
+                currentInput = result.toString();
+                shouldResetDisplay = true;
+                updateDisplay();
+                
+                // In a real Django app, this would send the calculation to the backend
+                saveCalculation(expression, result);
+                
+            } catch (error) {
+                display.textContent = 'Error';
+                currentInput = '0';
+                shouldResetDisplay = true;
+            }
+        }
+
+        function addToHistory(calculation) {
+            history.unshift(calculation);
+            if (history.length > 10) {
+                history.pop();
+            }
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            historyList.innerHTML = '';
+            history.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.textContent = item;
+                div.onclick = () => {
+                    const parts = item.split(' = ');
+                    if (parts.length === 2) {
+                        currentInput = parts[1];
+                        updateDisplay();
+                    }
+                };
+                historyList.appendChild(div);
+            });
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<div style="color: #999; text-align: center;">No calculations yet</div>';
+            }
+        }
+
+        function clearHistory() {
+            history = [];
+            updateHistoryDisplay();
+            // In a real Django app, this would clear the history on the backend
+        }
+
+        function saveCalculation(expression, result) {
+            // In a real Django application, this would send an AJAX request to Django
+            // Example:
+            /*
+            fetch('/api/calculate/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    expression: expression,
+                    result: result
+                })
+            });
+            */
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (event) => {
+            if (event.key >= '0' && event.key <= '9') {
+                appendToDisplay(event.key);
+            } else if (event.key === '.') {
+                appendToDisplay('.');
+            } else if (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/') {
+                appendToDisplay(event.key);
+            } else if (event.key === 'Enter' || event.key === '=') {
+                calculate();
+            } else if (event.key === 'Escape' || event.key === 'c' || event.key === 'C') {
+                clearDisplay();
+            } else if (event.key === 'Backspace') {
+                if (currentInput.length > 1) {
+                    currentInput = currentInput.slice(0, -1);
+                } else {
+                    currentInput = '0';
+                }
+                updateDisplay();
+            }
+        });
+
+        // Initialize
+        loadHistory();
+    </script>
+</body>
+</html>
